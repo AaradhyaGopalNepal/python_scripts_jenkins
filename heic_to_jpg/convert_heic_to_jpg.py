@@ -1,8 +1,8 @@
 import sys
 from pathlib import Path
 from PIL import Image, UnidentifiedImageError
-import zipfile
 from pillow_heif import register_heif_opener
+import zipfile
 
 register_heif_opener()
 
@@ -17,7 +17,7 @@ def convert_heic_to_jpg(path, out_dir):
             img.convert("RGB").save(jpg_path, "JPEG")
             print(f"Converted: {path.name} -> {jpg_path.name}")
     except UnidentifiedImageError:
-        print(f"ERROR: {path} is not a valid HEIC image")
+        print(f"ERROR: {path} is not a valid HEIC/HEIF image")
     except Exception as e:
         print(f"Failed to convert {path}: {e}")
 
@@ -26,15 +26,15 @@ input_path = Path(input_file)
 if input_path.suffix.lower() == ".zip":
     with zipfile.ZipFile(input_path, 'r') as zip_ref:
         zip_ref.extractall(output_dir / "temp")
-    heic_files = list((output_dir / "temp").rglob("*.heic"))
+    heic_files = list((output_dir / "temp").rglob("*.[hH][eE][iI][cFf]"))
     if not heic_files:
-        print("ERROR: ZIP contains no HEIC images!")
+        print("ERROR: ZIP contains no HEIC/HEIF images!")
     for f in heic_files:
         convert_heic_to_jpg(f, output_dir)
-elif input_path.suffix.lower() == ".heic":
+elif input_path.suffix.lower() in [".heic", ".heif"]:
     convert_heic_to_jpg(input_path, output_dir)
 else:
-    print("ERROR: uploaded file must be a .heic or .zip containing HEIC images")
+    # Try opening anyway for unknown extensions
+    convert_heic_to_jpg(input_path, output_dir)
 
 print(f"All JPGs saved in: {output_dir}")
-
