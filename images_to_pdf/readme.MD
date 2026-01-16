@@ -13,7 +13,7 @@ if [ -d "$WORKSPACE/python_scripts" ]; then
     git reset --hard origin/main
 else
     git clone -b main https://github.com/AaradhyaGopalNepal/python_scripts_jenkins.git "$WORKSPACE/python_scripts"
-    cd "$WORKSPACE/python_scripts"
+    cd "$WORKSPACE/python_scripts/images_to_pdf"
 fi
 
 # Create virtualenv and install dependencies
@@ -25,10 +25,10 @@ pip install --upgrade pip pillow
 mkdir -p "$WORKSPACE/output"
 
 # Copy uploaded file to workspace (Freestyle job automatically puts it as input_file)
-cp "$WORKSPACE/input_file" "$WORKSPACE/python_scripts/uploaded.zip"
+cp "$WORKSPACE/input_file" "$WORKSPACE/python_scripts/images_to_pdf/uploaded.zip"
 
 # Run the Python script
-python "$WORKSPACE/python_scripts/images_to_pdf.py" "$WORKSPACE/python_scripts/uploaded.zip" "$WORKSPACE/output/result.pdf"
+python "$WORKSPACE/python_scripts/images_to_pdf/images_to_pdf.py" "$WORKSPACE/python_scripts/images_to_pdf/uploaded.zip" "$WORKSPACE/output/result.pdf"
 
 echo "PDF created: $WORKSPACE/output/result.pdf"
 
@@ -38,14 +38,14 @@ echo "PDF created: $WORKSPACE/output/result.pdf"
 ```
 
 ## Jenkins Freestyle Job Setup
-1. (One Time Setup) Go to **Settings → Plugins → Available Plugins → File Parameter Plugin → Restart Jenkins**
-2. Go to **Jenkins → New Item → Freestyle project**, give it a name, click OK.  
-3. Enable **This project is parameterized**, click **Add Parameter → File Parameter**:  
+
+1. Go to **Jenkins → New Item → Freestyle project**, give it a name, click OK.  
+2. Enable **This project is parameterized**, click **Add Parameter → File Parameter**:  
    - Name: `input_file`  
    - Description: `Upload a ZIP of images`  
-4. Add **Build Step → Execute shell**, paste the bash script above.  
-5. Add **Post-build Action → Archive the artifacts**, set **Files to archive:** `output/*.pdf`.  
-6. Save the job.
+3. Add **Build Step → Execute shell**, paste the bash script above.  
+4. Add **Post-build Action → Archive the artifacts**, set **Files to archive:** `output/*.pdf`.  
+5. Save the job.
 
 ## How to Use
 
@@ -59,6 +59,6 @@ echo "PDF created: $WORKSPACE/output/result.pdf"
 
 ## Notes
 
-- Make sure your `images_to_pdf.py` ignores hidden macOS files (`__MACOSX` / `._`)  
+- The Python script should ignore hidden macOS files (`__MACOSX` / `._`)  
 - You can upload **single images or ZIP of images**  
 - The job automatically pulls the latest scripts each build
