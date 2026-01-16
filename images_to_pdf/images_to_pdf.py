@@ -15,10 +15,13 @@ def extract_images(input_path: Path, workdir: Path):
         images = sorted(
             p for p in workdir.rglob("*")
             if p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}
+            and not p.name.startswith("._")  # <- ignore macOS resource forks
+            and "__MACOSX" not in str(p)     # <- ignore __MACOSX folder
         )
     else:
         images = [input_path]
     return images
+
 
 def main():
     if len(sys.argv) != 3:
